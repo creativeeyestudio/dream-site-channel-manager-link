@@ -10,7 +10,7 @@ export class PricingService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
+    private readonly configService: ConfigService
   ) {
     this.strapiUrl = this.configService.get<string>('STRAPI_API');
     this.strapiToken = this.configService.get<string>('STRAPI_TOKEN');
