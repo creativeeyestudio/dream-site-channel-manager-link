@@ -5,8 +5,8 @@ import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class PricingService {
-  private strapiUrl: string;
-  private strapiToken: string;
+  private strapiUrl: string | undefined;
+  private strapiToken: string | undefined;
 
   constructor(
     private readonly httpService: HttpService,
@@ -21,12 +21,17 @@ export class PricingService {
 
   async getApiUrlFromStrapi(): Promise<string> {
     try {
-      const response = await firstValueFrom(
-        this.httpService.get(`${this.strapiUrl}/channel-manager-url`, {
-          headers: { Authorization: `Bearer ${this.strapiToken}` },
-        }),
-      );
-      return response.data.apiUrl;
+      if (this.strapiUrl && this.strapiToken) {
+        const response = await firstValueFrom(
+          this.httpService.get(`${this.strapiUrl}/channel-manager-url`, {
+            headers: { Authorization: `Bearer ${this.strapiToken}` },
+          }),
+        );
+
+        return response.data.apiUrl as string;
+      }
+
+      return 'Datas not found';
     } catch (error) {
       throw new Error(
         `Impossible de récupérer l'URL depuis Strapi: ${error.message}`,
@@ -34,7 +39,7 @@ export class PricingService {
     }
   }
 
-  async syncPrices(prices: any) {
+  async syncPrices(prices: unknown) {
     const apiUrl = await this.getApiUrlFromStrapi();
     if (!apiUrl) throw new Error('Aucune URL API trouvée.');
 
@@ -44,6 +49,6 @@ export class PricingService {
       }),
     );
 
-    return response.data;
+    return response.data as unknown;
   }
 }
